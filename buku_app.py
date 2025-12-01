@@ -181,7 +181,7 @@ if book_dict:
                 if borrower.strip():
                     borrow_book(book_id, borrower)
                     st.success("Buku dipinjam.")
-                    st.experimental_rerun()
+                    st.rerun()
         else:
             if st.button("Kembalikan Buku"):
                 return_book(book_id)
