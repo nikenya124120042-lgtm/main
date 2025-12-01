@@ -186,7 +186,7 @@ if book_dict:
             if st.button("Kembalikan Buku"):
                 return_book(book_id)
                 st.success("Buku dikembalikan.")
-                st.experimental_rerun()
+                st.rerun()
 
     with col3:
         if st.button("Detail Buku"):
