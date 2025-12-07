@@ -291,6 +291,35 @@ def menu_pinjam():
     if not tersedia:
         st.info("Tidak ada buku tersedia.")
         return
+# =========================================================
+# MENU PEMINJAMAN (DENGAN INPUT NAMA PEMINJAM)
+# =========================================================
+def menu_pinjam():
+    st.header("📖 Peminjaman Buku")
+
+    tersedia = st.session_state.perpus.daftar_tersedia()
+
+    if not tersedia:
+        st.info("Tidak ada buku tersedia.")
+        return
+
+    pilihan = st.selectbox(
+        "Pilih Buku",
+        [f"{b.id_buku} - {b.judul}" for b in tersedia]
+    )
+
+    id_buku = pilihan.split(" - ")[0]
+
+    # Tambahan baru → input nama peminjam
+    nama_peminjam = st.text_input("Nama Peminjam")
+
+    if st.button("Pinjam"):
+        if nama_peminjam.strip() == "":
+            st.warning("Nama peminjam harus diisi!")
+            return
+
+        st.session_state.perpus.pinjam(id_buku, nama_peminjam)
+        st.success(f"Buku berhasil dipinjam oleh {nama_peminjam}!")
 
     pilihan = st.selectbox(
         "Pilih Buku",
@@ -327,6 +356,34 @@ def menu_kembalikan():
         st.session_state.perpus.kembalikan(id_buku, USERNAME)
         st.success("Buku berhasil dikembalikan!")
 
+# =========================================================
+# MENU PENGEMBALIAN (DENGAN NAMA PENGEMBALIAN)
+# =========================================================
+def menu_kembalikan():
+    st.header("↩️ Pengembalian Buku")
+
+    dipinjam = st.session_state.perpus.daftar_dipinjam()
+
+    if not dipinjam:
+        st.info("Tidak ada buku yang sedang dipinjam.")
+        return
+
+    pilihan = st.selectbox(
+        "Pilih Buku",
+        [f"{b.id_buku} - {b.judul}" for b in dipinjam]
+    )
+
+    id_buku = pilihan.split(" - ")[0]
+
+    nama_pengembali = st.text_input("Nama Pengembali")
+
+    if st.button("Kembalikan"):
+        if nama_pengembali.strip() == "":
+            st.warning("Nama pengembali harus diisi!")
+            return
+
+        st.session_state.perpus.kembalikan(id_buku, nama_pengembali)
+        st.success(f"Buku berhasil dikembalikan oleh {nama_pengembali}!")
 
 # =========================================================
 # MENU RIWAYAT
