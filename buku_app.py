@@ -172,7 +172,7 @@ if book_dict:
         if st.button("Hapus Buku"):
             delete_book(book_id)
             st.success("Buku dihapus.")
-            st.experimental_rerun()
+            st.rerun()
 
     with col2:
         if status == "available":
