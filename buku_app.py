@@ -30,8 +30,7 @@ st.markdown("""
     /* Background utama biru pastel */
     .stApp {
         background: linear-gradient(135deg, #E3F2FD, #BBDEFB, #E8F4FF);
-    }
-
+                                    }
     /* Card / container */
     .stMarkdown, .stTextInput, .stSelectbox, .stNumberInput, .stDataFrame {
         background-color: #ffffffcc; 
