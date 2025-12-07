@@ -1,5 +1,56 @@
 import streamlit as st
 import sqlite3
+
+# =============================
+# BAGIAN 1 — CSS UNTUK TAMPILAN
+# =============================
+st.markdown("""
+<style>
+/* CSS DI SINI */
+.big-title {
+    font-size: 42px;
+    font-weight: 900;
+    color: #1A5276;
+    text-align: center;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =============================
+# BAGIAN 2 — HEADER
+# =============================
+st.markdown("<div class='big-title'>Aplikasi Perpustakaan</div>", unsafe_allow_html=True)
+
+# =============================
+# BAGIAN 3 — KONEKSI DATABASE
+# =============================
+conn = sqlite3.connect("perpus.db")
+cursor = conn.cursor()
+
+# buat tabel (jika belum ada)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS buku(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    judul TEXT,
+    penulis TEXT,
+    tahun INTEGER
+)
+""")
+
+# =============================
+# BAGIAN 4 — LOGIKA TAMBAH / EDIT / HAPUS
+# =============================
+mode = st.radio("Mode:", ["Tambah", "Edit"])
+
+if mode == "Tambah":
+    # isi form tambah
+    ...
+elif mode == "Edit":
+    # isi form edit
+    ...
+
+import streamlit as st
+import sqlite3
 from datetime import datetime
 
 DB_FILE = "library.db"
