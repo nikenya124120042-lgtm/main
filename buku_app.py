@@ -1,4 +1,3 @@
-
 import streamlit as st
 import sqlite3
 
@@ -21,8 +20,7 @@ st.markdown("""
 # BAGIAN 2 — HEADER
 # =============================
 st.markdown("<div class='big-title'>Aplikasi Perpustakaan</div>", unsafe_allow_html=True)
-
-# BAGIAN BACKGROUND
+# BACKGROUND
 st.markdown(
     """
     <style>
@@ -48,6 +46,30 @@ CREATE TABLE IF NOT EXISTS buku(
     tahun INTEGER
 )
 """)
+import streamlit as st
+import sqlite3
+from datetime import datetime
+
+DB_FILE = "library.db"
+
+# ---------- DATABASE ----------
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS books (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        author TEXT,
+        year INTEGER,
+        isbn TEXT,
+        status TEXT DEFAULT 'available',
+        borrower TEXT,
+        borrowed_date TEXT
+    )
+    """)
+    conn.commit()
+    conn.close()
 
 def get_conn():
     return sqlite3.connect(DB_FILE, check_same_thread=False)
@@ -119,6 +141,11 @@ def return_book(book_id):
     """, (book_id,))
     conn.commit()
     conn.close()
+
+# ---------- STREAMLIT UI ----------
+st.set_page_config(page_title="Aplikasi Perpustakaan", layout="wide")
+st.title("📚 Aplikasi Perpustakaan (Streamlit + SQLite)")
+
 init_db()
 
 # ----------- FORM TAMBAH / EDIT ----------
