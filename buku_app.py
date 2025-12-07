@@ -21,6 +21,17 @@ st.markdown("""
 # =============================
 st.markdown("<div class='big-title'>Aplikasi Perpustakaan</div>", unsafe_allow_html=True)
 
+# BAGIAN BACKGROUND
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #FF0000, #FFD700);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # =============================
 # BAGIAN 3 — KONEKSI DATABASE
 # =============================
