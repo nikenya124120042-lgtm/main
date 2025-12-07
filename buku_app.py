@@ -90,7 +90,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-    font-size: 42px;
+    font-size: 43px;
     font-weight: 900;
     color: #1A5276;
     text-align: center;
