@@ -41,6 +41,26 @@ import sqlite3
 from datetime import datetime
 
 DB_FILE = "library.db"
+
+# ---------- DATABASE ----------
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS books (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        author TEXT,
+        year INTEGER,
+        isbn TEXT,
+        status TEXT DEFAULT 'available',
+        borrower TEXT,
+        borrowed_date TEXT
+    )
+    """)
+    conn.commit()
+    conn.close()
+
 def get_conn():
     return sqlite3.connect(DB_FILE, check_same_thread=False)
 
