@@ -1,96 +1,53 @@
 
 import streamlit as st
 import sqlite3
-from datetime import datetime
 
-DB_FILE = "library.db"
-
-# ---------- DATABASE ----------
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS books (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        author TEXT,
-        year INTEGERimport streamlit as st
-
-# ======== TEMA BIRU PASTEL + FONT POPPINS ========
+# =============================
+# BAGIAN 1 — CSS UNTUK TAMPILAN
+# =============================
 st.markdown("""
 <style>
-
-    /* Import Google Font */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-
-    * {
-        font-family: 'Poppins', sans-serif !important;
-    }
-
-    /* Background utama biru pastel */
-    .stApp {
-        background: linear-gradient(135deg, #E3F2FD, #BBDEFB, #E8F4FF);
-                                    }
-    /* Card / container */
-    .stMarkdown, .stTextInput, .stSelectbox, .stNumberInput, .stDataFrame {
-        background-color: #ffffffcc; 
-        padding: 12px;
-        border-radius: 12px;
-        backdrop-filter: blur(6px);
-    }
-
-    /* Judul */
-    h1, h2, h3 {
-        color: #1A73E8 !important;
-        font-weight: 700;
-    }
-
-    /* Input box */
-    .stTextInput>div>div>input {
-        background-color: #F0F7FF;
-        border-radius: 8px;
-        border: 1px solid #CFE2FF;
-        font-size: 15px;
-    }
-
-    /* Selectbox */
-    .stSelectbox>div>div {
-        background-color: #F0F7FF;
-        border-radius: 8px;
-        border: 1px solid #CFE2FF;
-    }
-
-    /* Tombol */
-    .stButton>button {
-        background-color: #90CAF9;
-        color: white;
-        border-radius: 12px;
-        padding: 10px 20px;
-        border: none;
-        font-weight: 600;
-        transition: 0.2s;
-        font-size: 15px;
-    }
-    .stButton>button:hover {
-        background-color: #64B5F6;
-        transform: scale(1.04);
-    }
-
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        background-color: #D7EAFE;
-    }
-
+/* CSS DI SINI */
+.big-title {
+    font-size: 42px;
+    font-weight: 900;
+    color: #1A5276;
+    text-align: center;
+}
 </style>
 """, unsafe_allow_html=True)
-        isbn TEXT,
-        status TEXT DEFAULT 'available',
-        borrower TEXT,
-        borrowed_date TEXT
-    )
-    """)
-    conn.commit()
-    conn.close()
+
+# =============================
+# BAGIAN 2 — HEADER
+# =============================
+st.markdown("<div class='big-title'>Aplikasi Perpustakaan</div>", unsafe_allow_html=True)
+
+# BAGIAN BACKGROUND
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #ADD8E6, #B6E3FF, #D8F1FF);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+# =============================
+# BAGIAN 3 — KONEKSI DATABASE
+# =============================
+conn = sqlite3.connect("perpus.db")
+cursor = conn.cursor()
+
+# buat tabel (jika belum ada)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS buku(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    judul TEXT,
+    penulis TEXT,
+    tahun INTEGER
+)
+""")
 
 def get_conn():
     return sqlite3.connect(DB_FILE, check_same_thread=False)
