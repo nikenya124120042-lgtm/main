@@ -131,11 +131,6 @@ def return_book(book_id):
     """, (book_id,))
     conn.commit()
     conn.close()
-
-# ---------- STREAMLIT UI ----------
-st.set_page_config(page_title="Aplikasi Perpustakaan", layout="wide")
-st.title("📚 Aplikasi Perpustakaan (Streamlit + SQLite)")
-
 init_db()
 
 # ----------- FORM TAMBAH / EDIT ----------
