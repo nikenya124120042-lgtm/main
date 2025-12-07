@@ -1,6 +1,26 @@
 import streamlit as st
 import sqlite3
 
+# =============================
+# BAGIAN 1 — CSS UNTUK TAMPILAN
+# =============================
+st.markdown("""
+<style>
+/* CSS DI SINI */
+.big-title {
+    font-size: 42px;
+    font-weight: 900;
+    color: #1A5276;
+    text-align: center;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =============================
+# BAGIAN 2 — HEADER
+# =============================
+st.markdown("<div class='big-title'>Aplikasi Perpustakaan</div>", unsafe_allow_html=True)
+
 # ======== TEMA BIRU PASTEL + FONT POPPINS ========
 st.markdown("""
 <style>
