@@ -128,126 +128,254 @@ class LibrarySystem:
             SET status='tersedia', peminjam='', tanggal_pinjam=''
             WHERE id=?
         """, (book_id,))
+import streamlit as st
+from datetime import datetime
+
+# =========================================================
+# OOP MODEL DATA
+# =========================================================
+
+class Buku:
+    def __init__(self, id_buku, judul, penulis):
+        self.id_buku = id_buku
+        self.judul = judul
+        self.penulis = penulis
+        self.status = "Tersedia"   # Tersedia / Dipinjam
+
+class Riwayat:
+    def __init__(self, id_buku, user, aksi, waktu):
+        self.id_buku = id_buku
+        self.user = user
+        self.aksi = aksi
+        self.waktu = waktu
+
+# =========================================================
+# OOP UTAMA: Perpustakaan
+# =========================================================
+
+class Perpustakaan:
+    def __init__(self):
+        self.buku_list = []
+        self.riwayat_list = []
+
+    # ---------------- Tambah Buku ----------------
+    def tambah_buku(self, id_buku, judul, penulis):
+        buku = Buku(id_buku, judul, penulis)
+        self.buku_list.append(buku)
+        return True
+
+    # ---------------- Hapus Buku ----------------
+    def hapus_buku(self, id_buku):
+        for b in self.buku_list:
+            if b.id_buku == id_buku:
+                self.buku_list.remove(b)
+                return True
+        return False
+
+    # ---------------- Pinjam Buku ----------------
+    def pinjam(self, id_buku, user):
+        for b in self.buku_list:
+            if b.id_buku == id_buku and b.status == "Tersedia":
+                b.status = "Dipinjam"
+                self.riwayat_list.append(
+                    Riwayat(id_buku, user, "PINJAM", datetime.now())
+                )
+                return True
+        return False
+
+    # ---------------- Kembalikan Buku ----------------
+    def kembalikan(self, id_buku, user):
+        for b in self.buku_list:
+            if b.id_buku == id_buku and b.status == "Dipinjam":
+                b.status = "Tersedia"
+                self.riwayat_list.append(
+                    Riwayat(id_buku, user, "KEMBALI", datetime.now())
+                )
+                return True
+        return False
+
+    # ---------------- Ambil Daftar ----------------
+    def daftar_buku(self):
+        return self.buku_list
+
+    def daftar_tersedia(self):
+        return [b for b in self.buku_list if b.status == "Tersedia"]
+
+    def daftar_dipinjam(self):
+        return [b for b in self.buku_list if b.status == "Dipinjam"]
+
+    def daftar_riwayat(self):
+        return self.riwayat_list
 
 
-# ==========================================
-# SISTEM LOGIN
-# ==========================================
-accounts = {
-    "admin": {"password": "admin123", "role": "admin"},
-    "user": {"password": "user123", "role": "user"}
-}
-
+# =========================================================
+# SESSION STATE
+# =========================================================
 if "login" not in st.session_state:
     st.session_state.login = False
 
-if not st.session_state.login:
-    st.subheader("🔐 Login Aplikasi")
+if "perpus" not in st.session_state:
+    st.session_state.perpus = Perpustakaan()
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+USERNAME = "admin"
+PASSWORD = "123"
+
+
+# =========================================================
+# HALAMAN LOGIN
+# =========================================================
+def login_page():
+    st.title("🔐 Login Sistem Perpustakaan")
+
+    user = st.text_input("Username")
+    pw = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        if username in accounts and accounts[username]["password"] == password:
-            st.success(f"Login berhasil sebagai {accounts[username]['role']}")
+        if user == USERNAME and pw == PASSWORD:
             st.session_state.login = True
-            st.session_state.role = accounts[username]["role"]
+            st.success("Login Berhasil!")
         else:
             st.error("Username atau password salah!")
-    st.stop()
 
 
-# ==========================================
-# SETELAH LOGIN
-# ==========================================
-db = Database()
-library = LibrarySystem(db)
+# =========================================================
+# MENU TAMBAH BUKU
+# =========================================================
+def menu_tambah():
+    st.header("📚 Tambah Buku")
 
-st.sidebar.title("Menu")
-
-
-# ADMIN MENU
-if st.session_state.role == "admin":
-    menu = st.sidebar.selectbox("Pilih Menu", ["Tambah Buku", "Daftar Buku", "Peminjaman", "Pengembalian"])
-
-# USER MENU
-else:
-    menu = st.sidebar.selectbox("Pilih Menu", ["Daftar Buku", "Peminjaman", "Pengembalian"])
-
-
-# ==============================
-# FITUR APLIKASI
-# ==============================
-
-# TAMBAH BUKU (ADMIN ONLY)
-if menu == "Tambah Buku" and st.session_state.role == "admin":
-    st.header("➕ Tambah Buku Baru")
-
+    id_buku = st.text_input("ID Buku")
     judul = st.text_input("Judul Buku")
-    penulis = st.text_input("Penulis")
-    tahun = st.number_input("Tahun Terbit", min_value=0, max_value=9999)
-    isbn = st.text_input("ISBN")
+    penulis = st.text_input("Penulis Buku")
 
-    if st.button("Simpan Buku"):
-        buku_baru = Book(judul, penulis, tahun, isbn)
-        library.add_book(buku_baru)
-        st.success("Buku berhasil ditambahkan!")
-
-
-# DAFTAR BUKU
-if menu == "Daftar Buku":
-    st.header("📖 Daftar Semua Buku")
-
-    data = library.get_all_books()
-
-    df = pd.DataFrame(data, columns=[
-        "ID", "Judul", "Penulis", "Tahun", "ISBN",
-        "Status", "Peminjam", "Tanggal Pinjam"
-    ])
-
-    st.dataframe(df, use_container_width=True)
+    if st.button("Tambah Buku"):
+        if id_buku and judul and penulis:
+            st.session_state.perpus.tambah_buku(id_buku, judul, penulis)
+            st.success("Buku berhasil ditambahkan!")
+        else:
+            st.warning("Semua kolom harus diisi!")
 
 
-# PEMINJAMAN
-if menu == "Peminjaman":
-    st.header("📘 Form Peminjaman Buku")
+# =========================================================
+# MENU HAPUS BUKU
+# =========================================================
+def menu_hapus():
+    st.header("🗑️ Hapus Buku")
 
-    data = library.get_all_books()
-    df = pd.DataFrame(data, columns=[
-        "ID", "Judul", "Penulis", "Tahun", "ISBN",
-        "Status", "Peminjam", "Tanggal Pinjam"
-    ])
+    buku_list = st.session_state.perpus.daftar_buku()
 
-    buku_tersedia = df[df["Status"] == "tersedia"]
+    if not buku_list:
+        st.info("Belum ada buku.")
+        return
 
-    if len(buku_tersedia) > 0:
-        id_buku = st.selectbox("Pilih Buku", buku_tersedia["ID"].tolist())
-        peminjam = st.text_input("Nama Peminjam")
+    pilihan = st.selectbox(
+        "Pilih Buku", 
+        [f"{b.id_buku} - {b.judul}" for b in buku_list]
+    )
 
-        if st.button("Pinjam"):
-            library.borrow_book(id_buku, peminjam)
-            st.success("Buku berhasil dipinjam!")
-    else:
+    id_buku = pilihan.split(" - ")[0]
+
+    if st.button("Hapus"):
+        st.session_state.perpus.hapus_buku(id_buku)
+        st.success("Buku berhasil dihapus!")
+
+
+# =========================================================
+# MENU PEMINJAMAN
+# =========================================================
+def menu_pinjam():
+    st.header("📖 Peminjaman Buku")
+
+    tersedia = st.session_state.perpus.daftar_tersedia()
+
+    if not tersedia:
         st.info("Tidak ada buku tersedia.")
+        return
+
+    pilihan = st.selectbox(
+        "Pilih Buku",
+        [f"{b.id_buku} - {b.judul}" for b in tersedia]
+    )
+
+    id_buku = pilihan.split(" - ")[0]
+
+    if st.button("Pinjam"):
+        st.session_state.perpus.pinjam(id_buku, USERNAME)
+        st.success("Buku berhasil dipinjam!")
 
 
-# PENGEMBALIAN
-if menu == "Pengembalian":
-    st.header("📗 Form Pengembalian Buku")
+# =========================================================
+# MENU PENGEMBALIAN
+# =========================================================
+def menu_kembalikan():
+    st.header("↩️ Pengembalian Buku")
 
-    data = library.get_all_books()
-    df = pd.DataFrame(data, columns=[
-        "ID", "Judul", "Penulis", "Tahun", "ISBN",
-        "Status", "Peminjam", "Tanggal Pinjam"
-    ])
+    dipinjam = st.session_state.perpus.daftar_dipinjam()
 
-    buku_dipinjam = df[df["Status"] == "dipinjam"]
+    if not dipinjam:
+        st.info("Tidak ada buku yang sedang dipinjam.")
+        return
 
-    if len(buku_dipinjam) > 0:
-        id_buku = st.selectbox("Pilih Buku Dipinjam", buku_dipinjam["ID"].tolist())
+    pilihan = st.selectbox(
+        "Pilih Buku",
+        [f"{b.id_buku} - {b.judul}" for b in dipinjam]
+    )
 
-        if st.button("Kembalikan Buku"):
-            library.return_book(id_buku)
-            st.success("Buku berhasil dikembalikan!")
-    else:
-        st.info("Tidak ada buku dipinjam.")
+    id_buku = pilihan.split(" - ")[0]
+
+    if st.button("Kembalikan"):
+        st.session_state.perpus.kembalikan(id_buku, USERNAME)
+        st.success("Buku berhasil dikembalikan!")
+
+
+# =========================================================
+# MENU RIWAYAT
+# =========================================================
+def menu_riwayat():
+    st.header("📜 Riwayat Peminjaman")
+
+    riwayat = st.session_state.perpus.daftar_riwayat()
+
+    if not riwayat:
+        st.info("Belum ada riwayat.")
+        return
+
+    for r in riwayat:
+        st.write(
+            f"📘 ID Buku: **{r.id_buku}** | "
+            f"Aksi: **{r.aksi}** | "
+            f"User: **{r.user}** | "
+            f"Waktu: {r.waktu.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+
+
+# =========================================================
+# MAIN APP
+# =========================================================
+def main():
+    st.sidebar.title("📘 Menu Perpustakaan")
+
+    menu = st.sidebar.radio(
+        "Navigasi",
+        ["Tambah Buku", "Hapus Buku", "Peminjaman", "Pengembalian", "Riwayat"]
+    )
+
+    if menu == "Tambah Buku":
+        menu_tambah()
+    elif menu == "Hapus Buku":
+        menu_hapus()
+    elif menu == "Peminjaman":
+        menu_pinjam()
+    elif menu == "Pengembalian":
+        menu_kembalikan()
+    elif menu == "Riwayat":
+        menu_riwayat()
+
+
+# =========================================================
+# RUN PROGRAM
+# =========================================================
+if not st.session_state.login:
+    login_page()
+else:
+    main()
